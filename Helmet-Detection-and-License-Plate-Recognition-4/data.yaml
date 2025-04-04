@@ -1,0 +1,14 @@
+names:
+- helmet
+- licenseplate
+- motorcyclist
+nc: 3
+roboflow:
+  license: CC BY 4.0
+  project: helmet-detection-and-license-plate-recognition-lllnf
+  url: https://universe.roboflow.com/hcmute-sengg/helmet-detection-and-license-plate-recognition-lllnf/dataset/4
+  version: 4
+  workspace: hcmute-sengg
+test: /content/drive/MyDrive/yolo_train/Helmet-Detection-and-License-Plate-Recognition-4/test/images
+train: /content/drive/MyDrive/yolo_train/Helmet-Detection-and-License-Plate-Recognition-4/train/images
+val: /content/drive/MyDrive/yolo_train/Helmet-Detection-and-License-Plate-Recognition-4/valid/images
