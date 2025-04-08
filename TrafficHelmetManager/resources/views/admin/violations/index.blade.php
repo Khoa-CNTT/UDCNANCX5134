@@ -78,7 +78,10 @@
                                     <span class="font-weight-bold">Biển số:</span><br>
                                     ${licensePlateHtml}
                                 </div>
-                                <p class="mb-1">Thời gian: ${getCurrentTime()}</p>
+                                <div class="mb-2">
+                                    <span class="font-weight-bold">Thời gian:</span><br>
+                                    ${getCurrentTime()}
+                                </div>
                                 <span class="badge badge-danger">Không đội mũ</span>
                             </div>
                         </div>
@@ -145,7 +148,7 @@
     }
 
     // Mỗi 5 giây gửi 1 frame
-    setInterval(captureAndSendFrame, 1000);
+    setInterval(captureAndSendFrame, 500);
 
     // Khởi động camera
     window.addEventListener('DOMContentLoaded', startCamera);
