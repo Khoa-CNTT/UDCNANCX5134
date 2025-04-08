@@ -73,7 +73,7 @@
                         <!-- Phát hiện vi phạm -->
                         <li class="nav-header">PHÁT HIỆN VI PHẠM</li>
                         <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.violations.index') }}" class="nav-link">
                                 <i class="nav-icon fas fa-video"></i>
                                 <p>Xem Trực Tiếp</p>
                             </a>

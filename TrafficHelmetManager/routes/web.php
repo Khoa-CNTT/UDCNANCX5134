@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ViolationController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,4 +17,6 @@ Route::get('/admin/logout', [UserController::class, 'index'])->name('admin.logou
 //Tạo các route admin có middedleware là auth
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    Route::get('/xem-truc-tiep', [ViolationController::class, 'index'])->name('admin.violations.index');
 });
