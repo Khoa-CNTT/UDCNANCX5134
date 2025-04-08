@@ -65,14 +65,14 @@
 
         result.motorcyclists.forEach((item, index) => {
 
-                const licensePlateHtml = (item.license_plate_path && item.license_plate_path !== false)
-                    ? `<img src="${item.license_plate_path}" class="border" style="height: 150px; width: 150px;" alt="Biển số">`
+                const licensePlateHtml = (item.license_plate_img && item.license_plate_img !== false)
+                    ? `<img src="${item.license_plate_img}" class="border" style="height: 150px; width: 150px;" alt="Biển số">`
                     : `<span class="text-muted"><em>Chưa xác định</em></span>`;
 
                 const html = `
                     <div class="col-12 mb-3">
                         <div class="d-flex align-items-center border p-2 rounded shadow-sm">
-                            <img src="${item.motorcyclist_img_path}" class="img-thumbnail mr-3" style="width: 200px; height: 300px;">
+                            <img src="${item.motorcyclist_img}" class="img-thumbnail mr-3" style="width: 200px; height: 300px;">
                             <div class="flex-grow-1">
                                 <div class="mb-2">
                                     <span class="font-weight-bold">Biển số:</span><br>
