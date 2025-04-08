@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 
 class ViolationController extends Controller
 {
-    public function index(){
-        return view('admin.violations.index');
+    public function live(){
+        return view('admin.violations.live');
     }
 
-
+    public function create(){
+        return view('admin.violations.create');
+    }
 }

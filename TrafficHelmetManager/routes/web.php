@@ -18,5 +18,7 @@ Route::get('/admin/logout', [UserController::class, 'index'])->name('admin.logou
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    Route::get('/xem-truc-tiep', [ViolationController::class, 'index'])->name('admin.violations.index');
+    Route::get('/xem-truc-tiep', [ViolationController::class, 'live'])->name('admin.violations.live');
+
+    Route::get('/tai-len', [ViolationController::class, 'create'])->name('admin.violations.create');
 });

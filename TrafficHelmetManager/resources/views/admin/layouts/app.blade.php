@@ -64,7 +64,7 @@
 
                         <!-- Trang chủ -->
                         <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link active">
                                 <i class="nav-icon fas fa-house"></i>
                                 <p>Trang Chủ</p>
                             </a>
@@ -73,13 +73,13 @@
                         <!-- Phát hiện vi phạm -->
                         <li class="nav-header">PHÁT HIỆN VI PHẠM</li>
                         <li class="nav-item has-treeview">
-                            <a href="{{ route('admin.violations.index') }}" class="nav-link">
+                            <a href="{{ route('admin.violations.live') }}" class="nav-link">
                                 <i class="nav-icon fas fa-video"></i>
                                 <p>Xem Trực Tiếp</p>
                             </a>
                         </li>
                         <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.violations.create') }}" class="nav-link">
                                 <i class="nav-icon fas fa-upload"></i>
                                 <p>Tải Lên</p>
                             </a>
