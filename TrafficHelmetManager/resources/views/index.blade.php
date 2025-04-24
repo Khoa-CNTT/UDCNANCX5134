@@ -72,7 +72,7 @@
 
         .image-preview-container img {
             max-width: 100%;
-            height: 200px;
+            height: 250px;
             object-fit: cover;
             border: 3px solid #007bff;
             border-radius: 10px;
@@ -158,6 +158,15 @@
         .search-bar {
             margin-bottom: 20px;
         }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .card-text {
+            font-size: 0.95rem;
+        }
+
     </style>
 </head>
 
@@ -266,7 +275,7 @@
                                 <label for="violation-image" class="input-file-container">
                                     <span class="icon">&#128247;</span>
                                     <span class="text">Chọn ảnh từ thiết bị của bạn</span>
-                                    <input type="file" class="form-control" id="violation-image" accept="image/*" onchange="previewImage()">
+                                    <input type="file" class="form-control" id="violation-image" accept="image/*" onchange="previewImageAndSend()">
                                 </label>
                             </div>
                         </div>
@@ -279,29 +288,13 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Recent Violation Reports -->
-            <div class="recent-reports">
-                <h3 class="card-title text-center mb-4">Báo Cáo Vi Phạm Gần Đây</h3>
-
-                <!-- Search bar -->
-                <div class="search-bar">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm báo cáo theo thời gian, loại vi phạm...">
-                </div>
-
-                <!-- Example Violation Report -->
-                <div class="report-card">
-                    <h5><strong>Vi phạm: </strong>Chạy quá tốc độ</h5>
-                    <p><strong>Thời gian:</strong> 10:30 AM, 07/04/2025</p>
-                    <p><strong>Tình trạng:</strong> <span class="report-status pending">Chờ xử lý</span></p>
-                    <p><strong>Hình ảnh:</strong> <img src="example.jpg" alt="Violation Image" width="150px"></p>
-                </div>
-
-                <div class="report-card">
-                    <h5><strong>Vi phạm: </strong>Không đội mũ bảo hiểm</h5>
-                    <p><strong>Thời gian:</strong> 02:45 PM, 06/04/2025</p>
-                    <p><strong>Tình trạng:</strong> <span class="report-status rejected">Bị từ chối</span></p>
-                    <p><strong>Hình ảnh:</strong> <img src="example.jpg" alt="Violation Image" width="150px"></p>
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Chọn Ảnh Vi Phạm</h3>
+                    <p class="text-center mb-4">Danh sách vi phạm mới nhất được người dùng báo cáo trên hệ thống sẽ được hiển thị dưới đây.</p>
+                    <div id="violation-results" class="recent-reports">
+                        <div class="row" id="violation-grid"></div> <!-- grid nằm trong đây -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -313,19 +306,80 @@
     </footer>
 
     <script>
-        // Function to preview the image when selected
-        function previewImage() {
-            const file = document.getElementById('violation-image').files[0];
+        function renderViolations(data) {
+            const grid = document.getElementById('violation-grid');
+
+            if (!data.motorcyclist_detected || !data.motorcyclists.length) {
+                grid.insertAdjacentHTML('afterbegin', `<div class="col-12 text-center"><p>Không phát hiện vi phạm nào.</p></div>`);
+                return;
+            }
+
+            data.motorcyclists.forEach((motorcyclist, index) => {
+                const statusText = motorcyclist.helmet_detected ? 'Đã đội mũ bảo hiểm' : 'Không đội mũ';
+                const statusClass = motorcyclist.helmet_detected ? 'approved' : 'rejected';
+                const imageSrc = motorcyclist.motorcyclist_img || 'placeholder.jpg';
+                const plateImg = motorcyclist.license_plate_img;
+
+                const reportHTML = `
+                    <div class="col-md-3 mb-2">
+                        <div class="card shadow-sm border rounded-3">
+                            <img src="${imageSrc}" class="card-img-top" alt="Ảnh người điều khiển" style="height: 350px;">
+                            <div class="card-body" style="padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);;">
+                                <h5 class="card-title"><span class="badge ${statusClass === 'approved' ? 'bg-success' : 'bg-danger'}">${statusText}</span></h5>
+                                <div class="d-flex">
+                                    <div>
+                                        <p class="card-text"><strong>Thời gian:</strong> ${new Date().toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                    ${plateImg ? `
+                                        <div>
+                                            <img src="${plateImg}" alt="License Plate" class="img-thumbnail" style="max-width: 100%;">
+                                        </div>` : `
+                                        <div>
+                                            <img alt="" class="img-thumbnail" style="max-width: 100%;">
+                                        </div>`}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Append lên đầu danh sách
+                grid.insertAdjacentHTML('afterbegin', reportHTML);
+            });
+        }
+        function previewImageAndSend() {
+            const fileInput = document.getElementById('violation-image');
+            const file = fileInput.files[0];
             const preview = document.getElementById('preview-img');
             const previewContainer = document.getElementById('image-preview');
-            
-            const reader = new FileReader();
-            reader.onload = function() {
-                preview.src = reader.result;
-                previewContainer.style.display = 'block';
-            }
+
             if (file) {
+                // Hiển thị ảnh preview
+                const reader = new FileReader();
+                reader.onload = function () {
+                    preview.src = reader.result;
+                    previewContainer.style.display = 'block';
+                };
                 reader.readAsDataURL(file);
+
+                // Tạo FormData và gửi ảnh
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch('http://127.0.0.1:5000/detect-frame', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    renderViolations(data); // Tùy bạn định nghĩa hàm này
+                })
+                .catch(error => {
+                    console.error("Lỗi:", error);
+                    alert("Không thể gửi ảnh lên server.");
+                });
             }
         }
     </script>
