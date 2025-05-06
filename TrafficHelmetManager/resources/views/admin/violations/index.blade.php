@@ -149,7 +149,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-          <button type="submit" class="btn btn-primary">Cập nhật</button>
+          <button type="button" class="btn btn-primary btn-handle-ajax" data-dismiss="modal">Cập nhật</button>
         </div>
       </div>
     </form>
@@ -191,12 +191,17 @@
 
     });
 
-    $('#handleForm').submit(function (e) {
+    $('.btn-handle-ajax').click(function (e) {
         e.preventDefault();
 
         const id = $('#violationId').val();
         const plate_number = $('#plateInput').val();
         const status = $('#statusInput').val();
+
+        $('#violationId').val(id);
+        $('#plateInput').val(plate_number);
+        $('#statusInput').val(status);
+
         var url = "{{ route('admin.violations.update', ':id') }}".replace(':id', id);
         $.ajax({
             url: url,
@@ -216,8 +221,12 @@
                     row.find('.violation-status').html('<span class="badge bg-info">Đã xác minh</span>');
                 } else if (status == 'resolved') {
                     row.find('.violation-status').html('<span class="badge bg-success">Đã xử lý</span>');
-
                 }
+
+                row.find('.btn-handle')
+                .data('plate', plate_number)
+                .data('status', status);
+
             },
             error: function (xhr) {
                 alert('Có lỗi xảy ra!');
