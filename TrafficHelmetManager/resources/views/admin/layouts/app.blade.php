@@ -88,7 +88,7 @@
                         <!-- Quản lý vi phạm -->
                         <li class="nav-header">QUẢN LÝ VI PHẠM</li>
                         <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.violations.search') }}" class="nav-link">
                                 <i class="nav-icon fas fa-search"></i>
                                 <p>Tra Cứu Vi Phạm</p>
                             </a>
@@ -103,7 +103,7 @@
                         <!-- Cài đặt -->
                         <li class="nav-header">CÀI ĐẶT CHUNG</li>
                         <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('admin.profile.index') }}" class="nav-link">
                                 <i class="nav-icon fas fa-user-cog"></i>
                                 <p>Đổi Thông Tin</p>
                             </a>

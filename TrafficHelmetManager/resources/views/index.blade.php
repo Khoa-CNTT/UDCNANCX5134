@@ -290,7 +290,7 @@
             </div>
             <div class="card mt-4">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Chọn Ảnh Vi Phạm</h3>
+                    <h3 class="card-title text-center mb-4">Danh Sách Vi Phạm</h3>
                     <p class="text-center mb-4">Danh sách vi phạm mới nhất được người dùng báo cáo trên hệ thống sẽ được hiển thị dưới đây.</p>
                     <div id="violation-results" class="recent-reports">
                         <div class="row" id="violation-grid"></div> <!-- grid nằm trong đây -->

@@ -213,7 +213,7 @@
             },
             success: function (res) {
                 var row = $('#violation-row-' + id);
-                row.find('.violation-plate').text(plate_number);
+                row.find('.violation-plate').text(plate_number == "" ? 'Chưa xác định' : plate_number);
 
                 if(status == 'pending') {
                     row.find('.violation-status').html('<span class="badge bg-warning">Chờ xác minh</span>');
