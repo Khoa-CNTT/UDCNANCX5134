@@ -14,9 +14,8 @@ class Violation extends Model
     protected $fillable = [
         'user_id',
         'plate_number',
+        'plate_image',
         'image_url',
-        'video_url',
-        'location',
         'violation_time',
         'status',
     ];

@@ -148,7 +148,7 @@
     }
 
     // Mỗi 5 giây gửi 1 frame
-    setInterval(captureAndSendFrame, 500);
+    setInterval(captureAndSendFrame, 1000);
 
     // Khởi động camera
     window.addEventListener('DOMContentLoaded', startCamera);

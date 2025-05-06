@@ -21,4 +21,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/xem-truc-tiep', [ViolationController::class, 'live'])->name('admin.violations.live');
 
     Route::get('/tai-len', [ViolationController::class, 'create'])->name('admin.violations.create');
+
+    Route::get('/vi-pham', [ViolationController::class, 'index'])->name('admin.violations.index');
+    Route::put('/vi-pham/{id}', [ViolationController::class, 'update'])->name('admin.violations.update');
+    Route::get('/vi-pham/xoa/{id}', [ViolationController::class, 'delete'])->name('admin.violations.delete');
 });

@@ -1,8 +1,5 @@
-import sys
-sys.path.append('C:/Users/Admin/Desktop/TrafficHelmetViolation/yolo_api/ultralytics')  # Thêm đường dẫn chính xác
-
-from ultralytics import YOLO
 from flask import Flask, request, jsonify, send_from_directory
+import torch
 import cv2
 import numpy as np
 import base64
@@ -10,68 +7,43 @@ import os
 import random
 import string
 from flask_cors import CORS
-import mysql.connector
-from datetime import datetime
+
 
 app = Flask(__name__)
 CORS(app)  # Cho phép tất cả origin gọi API
+
 
 # Tạo thư mục results nếu chưa tồn tại
 if not os.path.exists('results'):
     os.makedirs('results')
 
-# Load mô hình YOLOv11 đã train
-model = YOLO('models/best.pt')
+# Load mô hình YOLOv5 custom
+model = torch.hub.load('yolov5', 'custom', path='models/best.pt', source='local')
 
 @app.route('/results/<path:filename>')
 def serve_results(filename):
+    # Trả về file trong thư mục "results"
     return send_from_directory(os.path.join(os.getcwd(), 'results'), filename)
 
 def random_string(length=8):
-    """Tạo tên ngẫu nhiên"""
+    """Tạo tên thư mục ngẫu nhiên"""
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(length))
 
+# Hàm chuyển ảnh sang base64
 def image_to_base64(image):
     _, buffer = cv2.imencode('.jpg', image)
     base64_str = base64.b64encode(buffer).decode('utf-8')
     return "data:image/jpeg;base64," + base64_str
 
-
-def save_violation(motorcyclist_img_base64, license_plate_img_base64):
-    try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            user='root',         # hoặc user khác nếu có
-            password='',         # mặc định của XAMPP là rỗng
-            database='traffichelmetviolation'
-        )
-        cursor = connection.cursor()
-
-        sql = """
-            INSERT INTO violations (image_url, plate_image)
-            VALUES (%s, %s)
-        """
-        cursor.execute(sql, (motorcyclist_img_base64, license_plate_img_base64))
-        connection.commit()
-        print("Violation saved successfully.")
-
-    except mysql.connector.Error as err:
-        print("MySQL Error:", err)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
+# Endpoint nhận và xử lý ảnh
 @app.route('/detect-frame', methods=['POST'])
 def detect_frame():
     if 'image' not in request.files:
         return jsonify({'error': 'No image file provided'}), 400
 
     file = request.files['image']
-    if file.filename == '':
+    if file and file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
     img_bytes = file.read()
@@ -83,60 +55,50 @@ def detect_frame():
     if frame is None:
         return jsonify({'error': 'Failed to decode image'}), 400
 
-    # Dự đoán bằng YOLOv11
-    results = model(frame)  # Chuyển BGR -> RGB
-    boxes = results[0].boxes.xyxy.cpu().numpy()  # (x1, y1, x2, y2)
-    scores = results[0].boxes.conf.cpu().numpy()  # Độ tin cậy
-    classes = results[0].boxes.cls.cpu().numpy().astype(int)  # Class id
-
-    names = model.names  # Tên class từ model
+    # Dự đoán bằng YOLOv5 (RGB)
+    results = model(frame[..., ::-1])
+    detections = results.pandas().xyxy[0].to_dict(orient="records")
 
     output = []
     motorcyclist_detected = False
 
-    detections = []
-    for box, score, cls_id in zip(boxes, scores, classes):
-        x1, y1, x2, y2 = box
-        detections.append({
-            "xmin": x1,
-            "ymin": y1,
-            "xmax": x2,
-            "ymax": y2,
-            "confidence": score,
-            "name": names[cls_id]
-        })
-
-    for det in detections:
+    for idx, det in enumerate(detections):
         label = det["name"]
-
-        if label == "motorcyclist":
+        confidence = det["confidence"]
+        if label == "motorcyclist" and confidence >= 0.7:
             xmin, ymin, xmax, ymax = int(det["xmin"]), int(det["ymin"]), int(det["xmax"]), int(det["ymax"])
 
+            # Kiểm tra helmet trong phạm vi motorcyclist
             helmet_detected = False
             for obj in detections:
-                if obj["name"] == "helmet" and obj["confidence"] >= 0.1:
-                    hxmin, hymin, hxmax, hymax = int(obj["xmin"]), int(obj["ymin"]), int(obj["xmax"]), int(obj["ymax"])
+                if obj["name"] == "helmet" and obj["confidence"] >= 0.3:
+                    hxmin, hymin = int(obj["xmin"]), int(obj["ymin"])
+                    hxmax, hymax = int(obj["xmax"]), int(obj["ymax"])
                     if xmin <= hxmin and xmax >= hxmax and ymin <= hymin and ymax >= hymax:
                         helmet_detected = True
-                        break
+                        break  # Nếu đã đội mũ thì bỏ qua
 
+            # ➤ Chỉ xử lý nếu KHÔNG đội mũ
             if not helmet_detected:
                 motorcyclist_detected = True
+
+                # Lấy ảnh motorcyclist
                 motorcyclist_img = frame[ymin:ymax, xmin:xmax]
                 motorcyclist_img_base64 = image_to_base64(motorcyclist_img)
 
+                # Kiểm tra và lấy ảnh biển số
                 license_plate_img = None
                 for obj in detections:
                     if obj["name"] == "licenseplate":
-                        pxmin, pymin, pxmax, pymax = int(obj["xmin"]), int(obj["ymin"]), int(obj["xmax"]), int(obj["ymax"])
+                        pxmin, pymin = int(obj["xmin"]), int(obj["ymin"])
+                        pxmax, pymax = int(obj["xmax"]), int(obj["ymax"])
                         if xmin <= pxmin and xmax >= pxmax and ymin <= pymin and ymax >= pymax:
                             license_plate_img = frame[pymin:pymax, pxmin:pxmax]
                             break
 
                 license_plate_img_base64 = image_to_base64(license_plate_img) if license_plate_img is not None else None
 
-                save_violation(motorcyclist_img_base64, license_plate_img_base64)
-
+                # Trả kết quả
                 output.append({
                     "motorcyclist_img": motorcyclist_img_base64,
                     "license_plate_img": license_plate_img_base64,
