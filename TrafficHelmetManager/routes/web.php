@@ -16,6 +16,7 @@ Route::get('/admin/logout', [UserController::class, 'logout'])->name('admin.logo
 Route::post('/login-user', [UserController::class, 'submitLoginUser'])->name('user.login');
 Route::post('/register-user', [UserController::class, 'submitRegisterUser'])->name('user.register');
 Route::get('logout-user', [UserController::class, 'logoutUser'])->name('user.logout');
+Route::put('/doi-thong-tin', [UserController::class, 'updateUser'])->name('user.update');
 
 
 //Tạo các route admin có middedleware là auth

@@ -193,7 +193,7 @@
                             </a>
                         </li>
                         <li class="nav-item mx-4">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="#updateModal" data-bs-toggle="modal" data-bs-target="#updateModal">
                                 <i class="bi bi-person-circle"></i> Đổi Thông Tin
                             </a>
                         </li>
@@ -226,65 +226,123 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Modal Đăng Nhập -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">Đăng Nhập</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ route('user.login') }}">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="username" name="login" placeholder="Nhập tài khoản hoặc email">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Đăng Nhập</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Đăng Ký -->
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalLabel">Đăng Ký</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('user.register') }}" method="POST">
+    @if(Auth::check())
+        <!-- Modal đổi thông tin -->
+        <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('user.update') }}" method="POST">
+                        @method('PUT')
                         @csrf
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateModalLabel">Cập Nhật Thông Tin Cá Nhân</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" required>
+                        <div class="modal-body">
+                            {{-- Username --}}
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" id="username" name="username"
+                                    value="{{ auth()->user()->username }}" required>
+                            </div>
+
+                            {{-- Email --}}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    value="{{ auth()->user()->email }}" required>
+                            </div>
+
+                            <hr>
+                            {{-- Mật khẩu hiện tại --}}
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Mật khẩu hiện tại</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password"
+                                    placeholder="Nhập mật khẩu hiện tại">
+                            </div>
+
+                            {{-- Mật khẩu mới --}}
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">Mật khẩu mới</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password"
+                                    placeholder="Nhập mật khẩu mới">
+                            </div>
+
+                            {{-- Xác nhận mật khẩu --}}
+                            <div class="mb-3">
+                                <label for="new_password_confirmation" class="form-label">Xác nhận mật khẩu mới</label>
+                                <input type="password" class="form-control" id="new_password_confirmation"
+                                    name="new_password_confirmation" placeholder="Nhập lại mật khẩu mới">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Cập Nhật</button>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Nhập lại mật khẩu" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
+    @else
+        <!-- Modal Đăng Nhập -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Đăng Nhập</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{{ route('user.login') }}">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" id="username" name="login" placeholder="Nhập tài khoản hoặc email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Đăng Nhập</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Đăng Ký -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registerModalLabel">Đăng Ký</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('user.register') }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Nhập lại mật khẩu" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Main content -->
     <main class="main-content">
@@ -478,6 +536,19 @@
                 });
             </script>
         @endforeach
+    @endif
+    @if (session('success'))
+        <script>
+            $(document).ready(function(){
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-top-right',
+                    timeOut: 5000
+                };
+                toastr.success('{{ session('success') }}', 'Thành Công!');
+            });
+        </script>
     @endif
 </body>
 

@@ -115,6 +115,48 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Đăng ký tài khoản thành công.');
     }
 
+    public function updateUser(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users,username,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+        ], [
+            'username.required' => 'Vui lòng nhập tên đăng nhập.',
+            'username.max' => 'Tên đăng nhập không được vượt quá 50 ký tự.',
+            'username.unique' => 'Tên đăng nhập đã tồn tại.',
+            
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.max' => 'Email không được vượt quá 255 ký tự.',
+            'email.unique' => 'Email đã tồn tại.',
+        ]);
+
+        // Có đổi mật khẩu và xác nhận mật khẩu mới cũ, hiện tại
+        if ($request->filled('new_password')) {
+            $request->validate([
+                'current_password' => 'required',
+                'new_password' => 'min:4|confirmed',
+            ], [
+                'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+                'new_password.min' => 'Mật khẩu mới phải có ít nhất 4 ký tự.',
+                'new_password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+            ]);
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng']);
+            }
+            $user->password = bcrypt($request->new_password);
+        }
+
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Cập nhật thông tin thành công.');
+    }
+
     public function profile()
     {
         $user = Auth::user();
