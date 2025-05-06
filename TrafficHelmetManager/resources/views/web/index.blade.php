@@ -186,12 +186,12 @@
                             <i class="bi bi-house-door-fill"></i> Trang Chủ
                         </a>
                     </li>
+                    <li class="nav-item mx-4">
+                        <a class="nav-link" href="#searchViolation" data-bs-toggle="modal" data-bs-target="#searchViolation">
+                            <i class="bi bi-search"></i> Tra Cứu Vi Phạm
+                        </a>
+                    </li>
                     @if (Auth::check())
-                        <li class="nav-item mx-4">
-                            <a class="nav-link" href="#searchViolation">
-                                <i class="bi bi-search"></i> Tra Cứu Vi Phạm
-                            </a>
-                        </li>
                         <li class="nav-item mx-4">
                             <a class="nav-link" href="#updateModal" data-bs-toggle="modal" data-bs-target="#updateModal">
                                 <i class="bi bi-person-circle"></i> Đổi Thông Tin
@@ -203,11 +203,6 @@
                             </a>
                         </li>
                     @else
-                        <li class="nav-item mx-4">
-                            <a class="nav-link" href="#searchViolation">
-                                <i class="bi bi-search"></i> Tra Cứu Vi Phạm
-                            </a>
-                        </li>
                         <li class="nav-item mx-4">
                             <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
                                 <i class="bi bi-person-circle"></i> Đăng Nhập
@@ -343,6 +338,44 @@
             </div>
         </div>
     @endif
+
+    <!-- Tra cứu vi phạm modal -->
+    <div class="modal fade" id="searchViolation" tabindex="-1" aria-labelledby="searchViolationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchViolationModalLabel">Tra Cứu Vi Phạm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-12 mb-3">
+                                <input type="text" name="query" class="form-control" placeholder="Nhập ID hoặc biển số"
+                                    value="{{ request('query') }}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <select name="status" class="form-select form-control">
+                                    <option value="">-- Trạng thái --</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ xác
+                                        minh</option>
+                                    <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>Đã
+                                        xác minh</option>
+                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Đã xử
+                                        lý</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <input type="date" name="violation_date" class="form-control" placeholder="Ngày vi phạm"
+                                    value="{{ request('violation_date') }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Tra Cứu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main content -->
     <main class="main-content">
