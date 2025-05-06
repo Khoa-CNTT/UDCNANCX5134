@@ -480,7 +480,7 @@
             }
 
             data.motorcyclists.forEach((motorcyclist, index) => {
-                const statusText = motorcyclist.helmet_detected ? 'Đã đội mũ bảo hiểm' : 'Không đội mũ';
+                const statusText = motorcyclist.helmet_detected ? 'Đã đội mũ bảo hiểm' : 'Chờ xử lý';
                 const statusClass = motorcyclist.helmet_detected ? 'approved' : 'rejected';
                 const imageSrc = motorcyclist.motorcyclist_img || 'placeholder.jpg';
                 const plateImg = motorcyclist.license_plate_img;
