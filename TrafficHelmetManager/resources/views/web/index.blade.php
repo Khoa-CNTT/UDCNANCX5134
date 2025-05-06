@@ -163,10 +163,10 @@
             font-size: 1.1rem;
             font-weight: 600;
         }
+
         .card-text {
             font-size: 0.95rem;
         }
-
     </style>
 </head>
 
@@ -202,7 +202,7 @@
                         </a>
                     </li>
                 </ul>
-            </div>            
+            </div>
         </div>
     </nav>
 
@@ -268,14 +268,16 @@
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title text-center mb-4">Chọn Ảnh Vi Phạm</h3>
-                    <p class="text-center mb-4">Hãy chọn ảnh từ thiết bị của bạn để báo cáo vi phạm giao thông. Ảnh sẽ được hiển thị dưới đây để bạn kiểm tra lại trước khi gửi.</p>
+                    <p class="text-center mb-4">Hãy chọn ảnh từ thiết bị của bạn để báo cáo vi phạm giao thông. Ảnh sẽ
+                        được hiển thị dưới đây để bạn kiểm tra lại trước khi gửi.</p>
                     <form>
                         <div class="form-group">
                             <div class="image-container">
                                 <label for="violation-image" class="input-file-container">
                                     <span class="icon">&#128247;</span>
                                     <span class="text">Chọn ảnh từ thiết bị của bạn</span>
-                                    <input type="file" class="form-control" id="violation-image" accept="image/*" onchange="previewImageAndSend()">
+                                    <input type="file" class="form-control" id="violation-image" accept="image/*"
+                                        onchange="previewImageAndSend()">
                                 </label>
                             </div>
                         </div>
@@ -291,10 +293,58 @@
             <div class="card mt-4">
                 <div class="card-body">
                     <h3 class="card-title text-center mb-4">Danh Sách Vi Phạm</h3>
-                    <p class="text-center mb-4">Danh sách vi phạm mới nhất được người dùng báo cáo trên hệ thống sẽ được hiển thị dưới đây.</p>
+                    <p class="text-center mb-4">Danh sách vi phạm mới nhất được người dùng báo cáo trên hệ thống sẽ được
+                        hiển thị dưới đây.</p>
                     <div id="violation-results" class="recent-reports">
-                        <div class="row" id="violation-grid"></div> <!-- grid nằm trong đây -->
+                        <div class="row" id="violation-grid">
+                            @forelse ($violations as $violation)
+                                <div class="col-md-3 mb-2">
+                                    <div class="card shadow-sm border rounded-3">
+                                        <img src="{{ $violation->image_url }}" class="card-img-top" alt="Ảnh người điều khiển" style="height: 350px;">
+                                        <div class="card-body" style="padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);;">
+                                            @php
+                                                $statusMap = [
+                                                    'pending' => ['text' => 'Chờ xử lý', 'class' => 'bg-warning'],
+                                                    'verified' => ['text' => 'Đã xác minh', 'class' => 'bg-info'],
+                                                    'resolved' => ['text' => 'Đã xử lý', 'class' => 'bg-success'],
+                                                ];
+                                                $status = $violation->status;
+                                                $badgeClass = $statusMap[$status]['class'] ?? 'bg-secondary';
+                                                $statusText = $statusMap[$status]['text'] ?? 'Không rõ';
+                                            @endphp
+                                            <h5 class="card-title">
+                                                <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
+                                            </h5>
+                                            <div class="d-flex">
+                                                <div>
+                                                    <p class="card-text"><strong>Thời gian:</strong> {{ $violation->violation_time }}</p>
+                                                </div>
+                                                <div>
+                                                    @if($violation->plate_image)
+                                                        <div>
+                                                            <img src="{{ $violation->plate_image }}" alt="License Plate" class="img-thumbnail" style="width: 100px; height: 100px;">
+                                                        </div>
+                                                    @else
+                                                        <div>
+                                                            <img alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12 text-center">
+                                    <p>Không có vi phạm nào được ghi nhận.</p>
+                                </div>
+                            @endforelse
+                        </div>
+
                     </div>
+                </div>
+                <div class="card-footer clearfix">
+                    {{ $violations->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>
@@ -310,7 +360,7 @@
             const grid = document.getElementById('violation-grid');
 
             if (!data.motorcyclist_detected || !data.motorcyclists.length) {
-                grid.insertAdjacentHTML('afterbegin', `<div class="col-12 text-center"><p>Không phát hiện vi phạm nào.</p></div>`);
+                alert("Không phát hiện vi phạm.");
                 return;
             }
 
@@ -333,10 +383,10 @@
                                     <div>
                                     ${plateImg ? `
                                         <div>
-                                            <img src="${plateImg}" alt="License Plate" class="img-thumbnail" style="max-width: 100%;">
+                                            <img src="${plateImg}" alt="License Plate" class="img-thumbnail" style="width: 100px; height: 100px;">
                                         </div>` : `
                                         <div>
-                                            <img alt="" class="img-thumbnail" style="max-width: 100%;">
+                                            <img alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
                                         </div>`}
                                     </div>
                                 </div>
@@ -372,19 +422,21 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    renderViolations(data); // Tùy bạn định nghĩa hàm này
-                })
-                .catch(error => {
-                    console.error("Lỗi:", error);
-                    alert("Không thể gửi ảnh lên server.");
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        renderViolations(data); // Tùy bạn định nghĩa hàm này
+                    })
+                    .catch(error => {
+                        console.error("Lỗi:", error);
+                        alert("Không thể gửi ảnh lên server.");
+                    });
             }
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gyb3f3k6griG0gAXfvH+iY5pa8BwvP4XzQHfDvbs8TdxIKKpzV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz4fnFO9gyb3f3k6griG0gAXfvH+iY5pa8BwvP4XzQHfDvbs8TdxIKKpzV"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

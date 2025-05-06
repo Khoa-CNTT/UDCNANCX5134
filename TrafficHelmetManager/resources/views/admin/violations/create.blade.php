@@ -93,7 +93,7 @@
                                 <b class="fw-bold">Thời gian:</b><br>
                                 ${getCurrentTime()}
                             </div>
-                            <span class="badge bg-danger">Không đội mũ</span>
+                            <span class="badge bg-warning">Chờ xử lý</span>
                         </div>
                     </div>
                 </div>

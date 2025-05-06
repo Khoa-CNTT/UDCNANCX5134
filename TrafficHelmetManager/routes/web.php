@@ -3,12 +3,11 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ViolationController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', function () {
-    return view('index');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
 Route::get('/admin/login', [UserController::class, 'login'])->name('admin.login');
 Route::post('/admin/login', [UserController::class, 'submitLogin'])->name('admin.login.submit');
