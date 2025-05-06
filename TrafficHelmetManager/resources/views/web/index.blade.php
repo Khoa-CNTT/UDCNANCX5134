@@ -490,7 +490,7 @@
                         <div class="card shadow-sm border rounded-3">
                             <img src="${imageSrc}" class="card-img-top" alt="Ảnh người điều khiển" style="height: 350px;">
                             <div class="card-body" style="padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);;">
-                                <h5 class="card-title"><span class="badge ${statusClass === 'approved' ? 'bg-success' : 'bg-danger'}">${statusText}</span></h5>
+                                <h5 class="card-title"><span class="badge bg-warning">${statusText}</span></h5>
                                 <div class="d-flex">
                                     <div>
                                         <p class="card-text"><strong>Thời gian:</strong> ${new Date().toLocaleString()}</p>
