@@ -13,6 +13,11 @@ Route::get('/admin/login', [UserController::class, 'login'])->name('admin.login'
 Route::post('/admin/login', [UserController::class, 'submitLogin'])->name('admin.login.submit');
 Route::get('/admin/logout', [UserController::class, 'logout'])->name('admin.logout');
 
+Route::post('/login-user', [UserController::class, 'submitLoginUser'])->name('user.login');
+Route::post('/register-user', [UserController::class, 'submitRegisterUser'])->name('user.register');
+Route::get('logout-user', [UserController::class, 'logoutUser'])->name('user.logout');
+
+
 //Tạo các route admin có middedleware là auth
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');

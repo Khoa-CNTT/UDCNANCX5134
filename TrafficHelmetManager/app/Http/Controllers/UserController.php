@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 class UserController extends Controller
 {
     public function login()
@@ -43,6 +44,75 @@ class UserController extends Controller
         }
 
         return redirect()->route('admin.login')->withErrors(['error' => 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.']);
+    }
+
+    public function submitLoginUser(Request $request)
+    {
+        $request->validate([
+            'login' => 'required', // login có thể là email hoặc username
+            'password' => 'required',
+        ], [
+            'login.required' => 'Vui lòng nhập email hoặc tên đăng nhập.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+        ]);
+
+        $login_type = filter_var($request->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $login_type => $request->input('login'),
+            'password' => $request->input('password'),
+        ];
+
+        if (Auth::attempt($credentials)) {
+            // Kiểm tra người dùng role == user
+            if (auth()->user()->role == "user") {
+                return redirect()->intended('/'); // Redirect về trang chủ
+            } else {
+                Auth::logout();
+                return redirect()->route('home.index')->withErrors(['error' => 'Bạn không có quyền truy cập trang này.']);
+            }
+        }
+
+        // Trả về json response nếu đăng nhập không thành công
+        return response()->json([
+            'status' => false,
+            'message' => 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.',
+        ]);
+    }
+
+    public function submitRegisterUser(Request $request)
+    {   
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|min:4|confirmed',
+        ], [
+            'username.required' => 'Vui lòng nhập tên đăng nhập.',
+            'username.max' => 'Tên đăng nhập không được vượt quá 50 ký tự.',
+            'username.unique' => 'Tên đăng nhập đã tồn tại.',
+            
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.max' => 'Email không được vượt quá 255 ký tự.',
+            'email.unique' => 'Email đã tồn tại.',
+            
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 4 ký tự.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+        ]);
+
+        // Tạo người dùng mới
+        $user = new User();
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->role = "user"; // Gán role là user
+        $user->save();
+
+        // Đăng nhập người dùng mới
+        Auth::login($user);
+
+        return redirect()->back()->with('success', 'Đăng ký tài khoản thành công.');
     }
 
     public function profile()
@@ -94,5 +164,11 @@ class UserController extends Controller
     {
         Auth::logout();
         return redirect()->route('admin.login');
+    }
+
+    public function logoutUser()
+    {
+        Auth::logout();
+        return redirect()->route('home.index')->with('success', 'Đăng xuất thành công.');
     }
 }

@@ -182,25 +182,43 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto d-flex justify-content-center">
                     <li class="nav-item mx-4">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link active" href="{{ route('home.index') }}">
                             <i class="bi bi-house-door-fill"></i> Trang Chủ
                         </a>
                     </li>
-                    <li class="nav-item mx-4">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="bi bi-person-circle"></i> Đăng Nhập
-                        </a>
-                    </li>
-                    <li class="nav-item mx-4">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            <i class="bi bi-person-plus-fill"></i> Đăng Ký
-                        </a>
-                    </li>
-                    <li class="nav-item mx-4">
-                        <a class="nav-link" href="#searchViolation">
-                            <i class="bi bi-search"></i> Tra Cứu Vi Phạm
-                        </a>
-                    </li>
+                    @if (Auth::check())
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="#searchViolation">
+                                <i class="bi bi-search"></i> Tra Cứu Vi Phạm
+                            </a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-person-circle"></i> Đổi Thông Tin
+                            </a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="{{ route('user.logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                            </a>
+                        </li>
+                    @else
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="#searchViolation">
+                                <i class="bi bi-search"></i> Tra Cứu Vi Phạm
+                            </a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="bi bi-person-circle"></i> Đăng Nhập
+                            </a>
+                        </li>
+                        <li class="nav-item mx-4">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                <i class="bi bi-person-plus-fill"></i> Đăng Ký
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>
@@ -217,14 +235,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form method="POST" action="{{ route('user.login') }}">
+                        @csrf
                         <div class="mb-3">
                             <label for="username" class="form-label">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="username" placeholder="Nhập tên đăng nhập">
+                            <input type="text" class="form-control" id="username" name="login" placeholder="Nhập tài khoản hoặc email">
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Đăng Nhập</button>
                     </form>
@@ -242,20 +261,25 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form action="{{ route('user.register') }}" method="POST">
+                        @csrf
                         <div class="mb-3">
                             <label for="username" class="form-label">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="username" placeholder="Nhập tên đăng nhập">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Nhập email">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">Đăng Ký</button>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Nhập lại mật khẩu" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
                     </form>
                 </div>
             </div>
@@ -437,6 +461,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
         integrity="sha384-oBqDVmMz4fnFO9gyb3f3k6griG0gAXfvH+iY5pa8BwvP4XzQHfDvbs8TdxIKKpzV"
         crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <script>
+                $(document).ready(function(){
+                    toastr.options = {
+                        closeButton: true,
+                        progressBar: true,
+                        positionClass: 'toast-top-right',
+                        timeOut: 5000
+                    };
+                    toastr.error('{{ $error }}', 'Thất Bại!');
+                });
+            </script>
+        @endforeach
+    @endif
 </body>
 
 </html>
